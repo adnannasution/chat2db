@@ -32,6 +32,8 @@ class InspectionExtract(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+    photo_path: Optional[str] = None
+    ai_description: Optional[str] = None
 
 
 class FindingOut(FindingSchema):
@@ -41,6 +43,11 @@ class FindingOut(FindingSchema):
         from_attributes = True
 
 
+class PhotoUploadResponse(BaseModel):
+    photo_path: str
+    ai_description: str
+
+
 class InspectionOut(BaseModel):
     id: int
     equipment_tag: str
@@ -48,6 +55,8 @@ class InspectionOut(BaseModel):
     equipment_type: Optional[str] = None
     operating_status: Optional[str] = None
     raw_narrative: str
+    photo_path: Optional[str] = None
+    ai_description: Optional[str] = None
     created_at: datetime
     findings: List[FindingOut] = []
 

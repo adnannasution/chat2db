@@ -1,9 +1,12 @@
+import base64
+import os
+import uuid
 from typing import List, Optional
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -12,7 +15,9 @@ from sqlalchemy.orm import Session
 import database
 import llm_service
 from database import Finding, Inspection, get_db, init_db
-from schemas import ChatRequest, ChatResponse, InspectionOut
+from schemas import ChatRequest, ChatResponse, InspectionOut, PhotoUploadResponse
+
+UPLOAD_DIR = "static/uploads"
 
 app = FastAPI(title="Chat-to-DB Equipment Inspection")
 
@@ -26,7 +31,37 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
     init_db()
+
+
+# ---------- Photo upload endpoint ----------
+@app.post("/api/upload-photo", response_model=PhotoUploadResponse)
+async def upload_photo(file: UploadFile = File(...)):
+    allowed = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+    if file.content_type not in allowed:
+        raise HTTPException(status_code=400, detail="Format file tidak didukung. Gunakan JPEG, PNG, atau WebP.")
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Ukuran file maksimal 10 MB.")
+
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "jpg"
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    save_path = os.path.join(UPLOAD_DIR, filename)
+    with open(save_path, "wb") as f:
+        f.write(contents)
+
+    image_b64 = base64.b64encode(contents).decode()
+    try:
+        ai_description = await llm_service.describe_photo(image_b64, file.content_type)
+    except Exception as e:
+        ai_description = f"Gagal menganalisis foto: {e}"
+
+    return PhotoUploadResponse(
+        photo_path=f"/static/uploads/{filename}",
+        ai_description=ai_description,
+    )
 
 
 # ---------- Chat endpoint: narasi -> LLM -> simpan ke DB ----------
@@ -48,6 +83,8 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
         operating_status=extracted.operating_status,
         raw_narrative=narrative,
         raw_json=extracted.model_dump(mode="json"),
+        photo_path=req.photo_path,
+        ai_description=req.ai_description,
     )
     db.add(inspection)
     db.flush()  # dapatkan inspection.id sebelum commit
