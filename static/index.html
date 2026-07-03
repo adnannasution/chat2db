@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat to DB — Equipment Inspection</title>
+<title>New Inspection — Industrial AI</title>
 <style>
   :root {
     --bg: #eef1f5;
@@ -37,7 +37,7 @@
     overflow: hidden;
   }
 
-  /* ── SIDEBAR ── */
+  /* SIDEBAR */
   .sidebar {
     width: var(--sidebar-w);
     background: var(--sidebar);
@@ -47,349 +47,160 @@
     flex-shrink: 0;
     height: 100vh;
   }
-  .sidebar-brand {
-    padding: 22px 24px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-brand .brand-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -.3px;
-  }
-  .sidebar-brand .brand-sub {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
-    letter-spacing: .3px;
-  }
-
-  .nav-section {
-    flex: 1;
-    padding: 16px 12px;
-    overflow-y: auto;
-  }
+  .sidebar-brand { padding: 22px 24px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-brand .brand-name { font-size: 16px; font-weight: 700; color: var(--accent); letter-spacing: -.3px; }
+  .sidebar-brand .brand-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; letter-spacing: .3px; }
+  .nav-section { flex: 1; padding: 16px 12px; overflow-y: auto; }
   .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none;
     transition: background .15s, color .15s;
   }
   .nav-item:hover { background: var(--panel-2); color: var(--text); }
-  .nav-item.active {
-    background: var(--accent-light);
-    color: var(--accent);
-    border-left: 3px solid var(--accent);
-    padding-left: 9px;
-  }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); border-left: 3px solid var(--accent); padding-left: 9px; }
   .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-  .sidebar-footer {
-    border-top: 1px solid var(--border);
-    padding: 16px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .sidebar-footer { border-top: 1px solid var(--border); padding: 16px 12px; display: flex; flex-direction: column; gap: 10px; }
   .btn-new {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%;
     transition: background .15s;
   }
   .btn-new:hover { background: var(--accent-mid); }
-  .profile-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 4px;
-    cursor: pointer;
-    border-radius: 8px;
-  }
+  .profile-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px; cursor: pointer; border-radius: 8px; }
   .profile-row:hover { background: var(--panel-2); }
-  .avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--accent-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: var(--accent);
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--accent); flex-shrink: 0; overflow: hidden; }
   .profile-info .name { font-size: 13px; font-weight: 600; }
   .profile-info .sub { font-size: 11px; color: var(--text-dim); }
 
-  /* ── MAIN ── */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* ── HEADER ── */
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .header {
-    height: var(--header-h);
-    background: var(--panel);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 16px;
-    flex-shrink: 0;
+    height: var(--header-h); background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; gap: 16px; flex-shrink: 0;
   }
   .header-title { font-size: 15px; font-weight: 700; flex: 1; }
   .search-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 12px;
-    width: 260px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; width: 260px;
   }
-  .search-bar input {
-    background: none;
-    border: none;
-    outline: none;
-    font-size: 13px;
-    color: var(--text);
-    width: 100%;
-  }
+  .search-bar input { background: none; border: none; outline: none; font-size: 13px; color: var(--text); width: 100%; }
   .search-bar input::placeholder { color: var(--text-dim); }
   .search-bar svg { color: var(--text-dim); width: 14px; height: 14px; flex-shrink: 0; }
-  .icon-btn {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    color: var(--text-dim);
-  }
-  .icon-btn:hover { color: var(--text); border-color: #c0cad8; }
-  .account-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 10px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--text);
-  }
+  .icon-btn { width: 36px; height: 36px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); }
+  .account-chip { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text); }
 
-  /* ── CONTENT AREA ── */
-  .content {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-  }
+  /* CONTENT */
+  .content { flex: 1; display: flex; overflow: hidden; }
 
-  /* ── INSPECTION LIST PANEL ── */
-  .list-panel {
-    width: 300px;
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-  }
-  .list-panel-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-  .list-panel-search {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .list-panel-search input {
-    width: 100%;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 10px;
-    font-size: 12px;
-    color: var(--text);
-    outline: none;
-  }
+  /* LIST PANEL */
+  .list-panel { width: 300px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .list-panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text-dim); }
+  .list-panel-search { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .list-panel-search input { width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 12px; color: var(--text); outline: none; }
   .list-panel-search input::placeholder { color: var(--text-dim); }
   .inspection-list { flex: 1; overflow-y: auto; padding: 8px; }
-  .inspection-card {
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--panel-2);
-    transition: border-color .15s, background .15s;
-  }
+  .inspection-card { border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; border: 1px solid var(--border); background: var(--panel-2); transition: border-color .15s, background .15s; }
   .inspection-card:hover { border-color: var(--accent); background: var(--accent-light); }
   .inspection-card .tag { font-weight: 700; font-size: 13px; color: var(--accent); }
   .inspection-card .meta { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
-  .badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 7px;
-    border-radius: 10px;
-    margin-top: 5px;
-    margin-right: 3px;
-  }
-  .badge.high, .badge.decreasing { background: var(--danger-bg); color: var(--danger); }
-  .badge.warning, .badge.increasing { background: var(--warn-bg); color: var(--warn); }
-  .badge.normal { background: var(--ok-bg); color: var(--ok); }
   .empty-state { text-align: center; padding: 40px 16px; color: var(--text-dim); font-size: 13px; }
 
-  /* ── CHAT PANEL ── */
-  .chat-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg);
-    overflow: hidden;
-  }
-  .chat-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .msg {
-    max-width: 72%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-  }
-  .msg.user {
-    align-self: flex-end;
-    background: var(--accent);
-    color: #fff;
-    border-bottom-right-radius: 3px;
-  }
-  .msg.assistant {
-    align-self: flex-start;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 3px;
-    color: var(--text);
-  }
-  .msg.error {
-    align-self: flex-start;
-    background: var(--danger-bg);
-    border: 1px solid #fca5a5;
-    color: var(--danger);
-  }
+  /* CHAT PANEL */
+  .chat-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+  .chat-area { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 72%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 3px; }
+  .msg.assistant { align-self: flex-start; background: var(--panel); border: 1px solid var(--border); border-bottom-left-radius: 3px; color: var(--text); }
+  .msg.error { align-self: flex-start; background: var(--danger-bg); border: 1px solid #fca5a5; color: var(--danger); }
   .typing { font-size: 12px; color: var(--text-dim); align-self: flex-start; padding: 6px 0; }
 
-  /* ── DATA CARD ── */
-  .data-card {
-    align-self: flex-start;
-    max-width: 88%;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 13px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  }
+  /* DATA CARD */
+  .data-card { align-self: flex-start; max-width: 88%; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .data-card .card-header { font-weight: 700; font-size: 14px; color: var(--text); }
   .data-card .card-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; margin-bottom: 10px; }
   .data-card table { width: 100%; border-collapse: collapse; }
-  .data-card th {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-    color: var(--text-dim);
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--border);
-    text-align: left;
-  }
+  .data-card th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--text-dim); padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
   .data-card td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-size: 12px; }
   .data-card tbody tr:last-child td { border-bottom: none; }
-
   .status-pill { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
   .status-pill.high, .status-pill.decreasing { background: var(--danger-bg); color: var(--danger); }
   .status-pill.warning, .status-pill.increasing { background: var(--warn-bg); color: var(--warn); }
   .status-pill.normal { background: var(--ok-bg); color: var(--ok); }
   .status-pill.low { background: var(--info-bg); color: var(--info); }
 
-  /* ── INPUT ── */
+  /* INPUT AREA */
   .input-area {
-    padding: 16px 24px;
+    padding: 14px 20px 16px;
     background: var(--panel);
     border-top: 1px solid var(--border);
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    align-items: flex-end;
   }
-  .input-area textarea {
-    flex: 1;
-    resize: none;
+
+  /* PHOTO UPLOAD ZONE */
+  .photo-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
     background: var(--panel-2);
+    position: relative;
+  }
+  .photo-zone:hover, .photo-zone.drag-over { border-color: var(--accent); background: var(--accent-light); }
+  .photo-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-zone .zone-icon { color: var(--text-dim); flex-shrink: 0; }
+  .photo-zone .zone-text { font-size: 13px; color: var(--text-dim); }
+  .photo-zone .zone-text strong { color: var(--accent); }
+
+  /* PHOTO PREVIEW */
+  .photo-preview {
+    display: none;
     border: 1px solid var(--border);
     border-radius: 10px;
-    color: var(--text);
-    padding: 10px 14px;
-    font-family: inherit;
-    font-size: 14px;
-    min-height: 44px;
-    max-height: 140px;
-    outline: none;
+    overflow: hidden;
+    background: var(--panel-2);
+  }
+  .photo-preview.show { display: flex; gap: 0; }
+  .photo-preview img { width: 100px; height: 80px; object-fit: cover; flex-shrink: 0; }
+  .photo-preview .ai-info { flex: 1; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .photo-preview .ai-label { font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+  .photo-preview .ai-desc { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .photo-preview .ai-loading { font-size: 12px; color: var(--text-dim); font-style: italic; }
+  .photo-preview .btn-remove-photo { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; align-self: flex-start; padding: 2px 6px; border-radius: 4px; }
+  .photo-preview .btn-remove-photo:hover { background: var(--danger-bg); }
+
+  /* NARRATIVE ROW */
+  .narrative-row { display: flex; gap: 10px; align-items: flex-end; }
+  .narrative-row textarea {
+    flex: 1; resize: none;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    padding: 10px 14px; font-family: inherit; font-size: 14px;
+    min-height: 44px; max-height: 120px; outline: none;
     transition: border-color .15s;
   }
-  .input-area textarea:focus { border-color: var(--accent); }
-  .input-area textarea::placeholder { color: var(--text-dim); }
+  .narrative-row textarea:focus { border-color: var(--accent); }
+  .narrative-row textarea::placeholder { color: var(--text-dim); }
   .btn-send {
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    padding: 10px 22px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    height: 44px;
-    white-space: nowrap;
+    background: var(--accent); border: none; color: #fff;
+    font-weight: 700; padding: 10px 22px; border-radius: 10px;
+    cursor: pointer; font-size: 14px; height: 44px; white-space: nowrap;
     transition: background .15s;
   }
   .btn-send:hover { background: var(--accent-mid); }
   .btn-send:disabled { opacity: .5; cursor: not-allowed; }
+
+  .input-hint { font-size: 11px; color: var(--text-dim); }
+  .input-hint span { color: var(--accent); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -403,25 +214,13 @@
 
   <nav class="nav-section">
     <a href="/data" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Equipment List
-    </a>
-    <a href="/" class="nav-item active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Inspection History
-    </a>
-    <a href="/data" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Analytics
-    </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-      Settings
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Report
     </a>
   </nav>
 
   <div class="sidebar-footer">
-    <button class="btn-new" onclick="focusInput()">
+    <button class="btn-new" onclick="resetForm()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       New Inspection
     </button>
@@ -437,9 +236,8 @@
 
 <!-- MAIN -->
 <div class="main">
-  <!-- HEADER -->
   <header class="header">
-    <div class="header-title">Chat to DB — Equipment Inspection</div>
+    <div class="header-title">New Inspection</div>
     <div class="search-bar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input placeholder="Search parameters..." />
@@ -450,7 +248,6 @@
     <div class="account-chip">ACCOUNT_</div>
   </header>
 
-  <!-- CONTENT -->
   <div class="content">
     <!-- List panel -->
     <div class="list-panel">
@@ -466,14 +263,47 @@
     <!-- Chat panel -->
     <div class="chat-panel">
       <div class="chat-area" id="chatArea">
-        <div class="msg assistant">Halo! Ceritakan hasil inspeksi equipment kamu, contoh:
+        <div class="msg assistant">Halo! Mulai inspeksi dengan mengunggah foto kondisi equipment, lalu tambahkan narasi detail.
 
+Contoh narasi:
 "Pompa P-101A lagi running, di bearing DE suhunya naik jadi 87°C dari sebelumnya 72°C. Vibrasi DE horizontal 8.2 mm/s tinggi, NDE 4.1 mm/s agak warning. Discharge pressure turun ke 7.8 bar dari normal 8.5 bar. Mechanical seal ada rembesan kecil."</div>
       </div>
 
+      <!-- INPUT AREA -->
       <div class="input-area">
-        <textarea id="messageInput" placeholder="Tulis narasi inspeksi di sini..." rows="1"></textarea>
-        <button class="btn-send" id="sendBtn">Kirim</button>
+
+        <!-- Step 1: Photo Upload -->
+        <div class="photo-zone" id="photoZone">
+          <input type="file" id="photoInput" accept="image/*" />
+          <div class="zone-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="zone-text">
+            <strong>Upload foto</strong> kondisi equipment — atau seret ke sini<br>
+            <span style="font-size:11px">AI akan otomatis mendeskripsikan kondisi yang terlihat</span>
+          </div>
+        </div>
+
+        <!-- Photo preview + AI description -->
+        <div class="photo-preview" id="photoPreview">
+          <img id="photoThumb" src="" alt="preview" />
+          <div class="ai-info">
+            <div class="ai-label">Deskripsi AI dari Foto</div>
+            <div class="ai-desc" id="aiDescText" style="display:none"></div>
+            <div class="ai-loading" id="aiLoading">Menganalisis foto...</div>
+          </div>
+          <button class="btn-remove-photo" onclick="removePhoto()" title="Hapus foto">✕</button>
+        </div>
+
+        <!-- Step 2: Narrative + Send -->
+        <div class="narrative-row">
+          <textarea id="messageInput" placeholder="Tulis narasi inspeksi detail di sini... (wajib)" rows="1"></textarea>
+          <button class="btn-send" id="sendBtn">Kirim</button>
+        </div>
+
+        <div class="input-hint">
+          <span>Step 1</span> Upload foto &nbsp;→&nbsp; <span>Step 2</span> Tulis narasi &nbsp;→&nbsp; <span>Kirim</span>
+        </div>
       </div>
     </div>
   </div>
@@ -485,9 +315,77 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const inspectionList = document.getElementById('inspectionList');
 const searchTag = document.getElementById('searchTag');
+const photoInput = document.getElementById('photoInput');
+const photoZone = document.getElementById('photoZone');
+const photoPreview = document.getElementById('photoPreview');
+const photoThumb = document.getElementById('photoThumb');
+const aiDescText = document.getElementById('aiDescText');
+const aiLoading = document.getElementById('aiLoading');
 
-function focusInput() { messageInput.focus(); }
+let currentPhotoPath = null;
+let currentAiDesc = null;
 
+// ── Photo upload ──
+photoInput.addEventListener('change', () => {
+  if (photoInput.files[0]) handlePhoto(photoInput.files[0]);
+});
+
+photoZone.addEventListener('dragover', e => { e.preventDefault(); photoZone.classList.add('drag-over'); });
+photoZone.addEventListener('dragleave', () => photoZone.classList.remove('drag-over'));
+photoZone.addEventListener('drop', e => {
+  e.preventDefault();
+  photoZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) handlePhoto(f);
+});
+
+async function handlePhoto(file) {
+  const reader = new FileReader();
+  reader.onload = e => { photoThumb.src = e.target.result; };
+  reader.readAsDataURL(file);
+
+  photoPreview.classList.add('show');
+  photoZone.style.display = 'none';
+  aiDescText.style.display = 'none';
+  aiLoading.style.display = '';
+  currentPhotoPath = null;
+  currentAiDesc = null;
+
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch('/api/upload-photo', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+    const data = await res.json();
+    currentPhotoPath = data.photo_path;
+    currentAiDesc = data.ai_description;
+    aiDescText.textContent = data.ai_description;
+    aiDescText.style.display = '';
+    aiLoading.style.display = 'none';
+  } catch (e) {
+    aiDescText.textContent = 'Gagal menganalisis foto: ' + e.message;
+    aiDescText.style.display = '';
+    aiLoading.style.display = 'none';
+  }
+}
+
+function removePhoto() {
+  photoPreview.classList.remove('show');
+  photoZone.style.display = '';
+  photoInput.value = '';
+  photoThumb.src = '';
+  aiDescText.textContent = '';
+  currentPhotoPath = null;
+  currentAiDesc = null;
+}
+
+function resetForm() {
+  removePhoto();
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+}
+
+// ── Chat ──
 function addMsg(text, cls) {
   const div = document.createElement('div');
   div.className = 'msg ' + cls;
@@ -536,17 +434,33 @@ function renderDataCard(data) {
 
 async function sendMessage() {
   const text = messageInput.value.trim();
-  if (!text) return;
+  if (!text) {
+    messageInput.focus();
+    messageInput.style.borderColor = 'var(--danger)';
+    setTimeout(() => messageInput.style.borderColor = '', 1500);
+    return;
+  }
+
+  const photoPath = currentPhotoPath;
+  const aiDesc = currentAiDesc;
+
+  if (photoPath) {
+    const thumb = document.createElement('div');
+    thumb.style.cssText = 'align-self:flex-end;';
+    thumb.innerHTML = `<img src="${photoPath}" style="max-width:160px;border-radius:8px;border:1px solid var(--border);" />`;
+    chatArea.appendChild(thumb);
+  }
   addMsg(text, 'user');
   messageInput.value = '';
   messageInput.style.height = 'auto';
   sendBtn.disabled = true;
   const typing = addMsg('Mengekstrak data...', 'typing');
+
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({ message: text, photo_path: photoPath, ai_description: aiDesc })
     });
     typing.remove();
     if (!res.ok) {
@@ -557,6 +471,7 @@ async function sendMessage() {
     const result = await res.json();
     addMsg(result.reply, 'assistant');
     renderDataCard(result.data);
+    resetForm();
     loadInspections();
   } catch (e) {
     typing.remove();
@@ -572,9 +487,10 @@ messageInput.addEventListener('keydown', e => {
 });
 messageInput.addEventListener('input', () => {
   messageInput.style.height = 'auto';
-  messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
+  messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
 });
 
+// ── Inspection list ──
 async function loadInspections(tag) {
   const url = tag ? `/api/inspections?equipment_tag=${encodeURIComponent(tag)}` : '/api/inspections';
   try {

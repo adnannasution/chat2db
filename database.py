@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     create_engine, Column, Integer, String, Text, Numeric, Date, DateTime,
-    ForeignKey, JSON
+    ForeignKey, JSON, text
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
@@ -28,6 +28,8 @@ class Inspection(Base):
     operating_status = Column(String(50))
     raw_narrative = Column(Text, nullable=False)
     raw_json = Column(JSON)
+    photo_path = Column(String(500))
+    ai_description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     findings = relationship(
@@ -56,6 +58,13 @@ class Finding(Base):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE inspections ADD COLUMN IF NOT EXISTS photo_path VARCHAR(500)"))
+            conn.execute(text("ALTER TABLE inspections ADD COLUMN IF NOT EXISTS ai_description TEXT"))
+            conn.commit()
+        except Exception:
+            pass
 
 
 def get_db():

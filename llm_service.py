@@ -58,6 +58,52 @@ def _strip_json_fence(text: str) -> str:
     return text
 
 
+async def describe_photo(image_base64: str, mime_type: str = "image/jpeg") -> str:
+    """Generate short Indonesian description of equipment condition from photo."""
+    if not DINOIKI_API_KEY:
+        raise RuntimeError("DINOIKI_API_KEY belum di-set di environment variable.")
+
+    payload = {
+        "model": DINOIKI_MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:{mime_type};base64,{image_base64}"},
+                    },
+                    {
+                        "type": "text",
+                        "text": (
+                            "Kamu adalah inspektor equipment industri. "
+                            "Deskripsikan kondisi equipment dalam foto ini secara singkat dalam Bahasa Indonesia, "
+                            "maksimal 2 kalimat. Fokus pada kondisi fisik yang terlihat, anomali, atau kerusakan. "
+                            "Jika tidak ada anomali yang jelas, sebutkan kondisi tampak normal."
+                        ),
+                    },
+                ],
+            }
+        ],
+        "max_tokens": 200,
+        "temperature": 0.3,
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {DINOIKI_API_KEY}",
+    }
+
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(DINOIKI_URL, headers=headers, json=payload)
+        resp.raise_for_status()
+        result = resp.json()
+
+    try:
+        return result["choices"][0]["message"]["content"].strip()
+    except (KeyError, IndexError):
+        return "Deskripsi tidak tersedia."
+
+
 async def extract_inspection(narrative: str) -> InspectionExtract:
     if not DINOIKI_API_KEY:
         raise RuntimeError("DINOIKI_API_KEY belum di-set di environment variable.")
