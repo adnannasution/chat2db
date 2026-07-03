@@ -118,3 +118,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 def index():
     return FileResponse("static/index.html")
+
+
+@app.get("/data")
+def data_page():
+    return FileResponse("static/data.html")

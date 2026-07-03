@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Inspeksi — Chat to DB</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #263449;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #14b8a6;
+    --accent-dark: #0d9488;
+    --danger: #f87171;
+    --warn: #fbbf24;
+    --ok: #4ade80;
+    --info: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  .nav {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 52px;
+  }
+  .nav-brand { font-weight: 700; color: var(--accent); font-size: 15px; text-decoration: none; }
+  .nav a { color: var(--text-dim); text-decoration: none; font-size: 14px; padding: 4px 0; border-bottom: 2px solid transparent; }
+  .nav a.active, .nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* TOOLBAR */
+  .toolbar {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar input, .toolbar select {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .toolbar input { width: 220px; }
+  .toolbar .count { margin-left: auto; font-size: 13px; color: var(--text-dim); }
+  .btn-refresh {
+    background: var(--accent);
+    border: none;
+    color: #06231f;
+    font-weight: 700;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; padding: 0 24px 24px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  thead th {
+    background: var(--panel);
+    color: var(--text-dim);
+    font-weight: 600;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: var(--text); }
+  thead th .sort-icon { margin-left: 4px; opacity: .5; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:hover { background: var(--panel-2); }
+  tbody td { padding: 10px 12px; vertical-align: top; }
+  .tag { font-weight: 700; color: var(--accent); }
+  .text-dim { color: var(--text-dim); }
+  .narrative-cell { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-dim); font-size: 12px; }
+
+  /* PILLS */
+  .pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin: 1px 2px 1px 0;
+  }
+  .pill.high, .pill.decreasing { background: rgba(248,113,113,.15); color: var(--danger); }
+  .pill.warning, .pill.increasing { background: rgba(251,191,36,.15); color: var(--warn); }
+  .pill.normal { background: rgba(74,222,128,.15); color: var(--ok); }
+  .pill.low { background: rgba(96,165,250,.15); color: var(--info); }
+  .pill.none { background: rgba(148,163,184,.1); color: var(--text-dim); }
+
+  /* EXPAND ROW */
+  .expand-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 3px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .expand-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .findings-row td { padding: 0; }
+  .findings-inner {
+    padding: 12px 16px;
+    background: #111d2e;
+  }
+  .findings-inner table { margin-top: 0; font-size: 12px; }
+  .findings-inner th { background: transparent; font-size: 11px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .findings-inner td { padding: 6px 8px; border-bottom: 1px solid rgba(51,65,85,.5); }
+
+  /* DELETE */
+  .btn-del {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    opacity: .6;
+    font-size: 13px;
+    padding: 2px 6px;
+  }
+  .btn-del:hover { opacity: 1; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px; color: var(--text-dim); }
+
+  /* MODAL confirm */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 340px;
+  }
+  .modal h3 { margin: 0 0 8px; font-size: 15px; }
+  .modal p { font-size: 13px; color: var(--text-dim); margin: 0 0 20px; }
+  .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-btns button { padding: 7px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .btn-cancel { background: var(--panel-2); color: var(--text); border: 1px solid var(--border) !important; }
+  .btn-confirm-del { background: var(--danger); color: #fff; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">Chat to DB</a>
+  <a href="/">Chat</a>
+  <a href="/data" class="active">Data Inspeksi</a>
+</nav>
+
+<div class="toolbar">
+  <input id="searchTag" placeholder="Filter equipment tag..." />
+  <select id="filterStatus">
+    <option value="">Semua status</option>
+    <option value="high">High</option>
+    <option value="warning">Warning</option>
+    <option value="normal">Normal</option>
+    <option value="low">Low</option>
+    <option value="decreasing">Decreasing</option>
+    <option value="increasing">Increasing</option>
+  </select>
+  <button class="btn-refresh" onclick="load()">Refresh</button>
+  <span class="count" id="countLabel"></span>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th data-col="equipment_tag">Equipment Tag <span class="sort-icon">↕</span></th>
+        <th data-col="inspection_date">Tanggal <span class="sort-icon">↕</span></th>
+        <th data-col="equipment_type">Tipe</th>
+        <th data-col="operating_status">Status Operasi</th>
+        <th>Findings</th>
+        <th>Narasi</th>
+        <th>Detail</th>
+        <th>Hapus</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty" id="emptyState" style="display:none">Belum ada data inspeksi.</div>
+</div>
+
+<!-- Modal konfirmasi hapus -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3>Hapus Inspeksi</h3>
+    <p id="modalMsg"></p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Batal</button>
+      <button class="btn-confirm-del" id="btnConfirmDel">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allData = [];
+let sortCol = 'inspection_date';
+let sortDir = -1; // -1 desc, 1 asc
+let expandedId = null;
+let pendingDeleteId = null;
+
+async function load() {
+  const tag = document.getElementById('searchTag').value.trim();
+  const url = tag ? `/api/inspections?equipment_tag=${encodeURIComponent(tag)}&limit=200` : '/api/inspections?limit=200';
+  try {
+    const res = await fetch(url);
+    allData = await res.json();
+  } catch(e) {
+    allData = [];
+  }
+  render();
+}
+
+function statusSummary(findings) {
+  const counts = {};
+  findings.forEach(f => {
+    if (f.status) counts[f.status] = (counts[f.status] || 0) + 1;
+  });
+  if (Object.keys(counts).length === 0) return '<span class="pill none">—</span>';
+  return Object.entries(counts).map(([s, n]) =>
+    `<span class="pill ${s}">${s}${n > 1 ? ' ×'+n : ''}</span>`
+  ).join('');
+}
+
+function sorted(data) {
+  return [...data].sort((a, b) => {
+    let va = a[sortCol] ?? '', vb = b[sortCol] ?? '';
+    if (va < vb) return -sortDir;
+    if (va > vb) return sortDir;
+    return 0;
+  });
+}
+
+function filtered(data) {
+  const status = document.getElementById('filterStatus').value;
+  if (!status) return data;
+  return data.filter(d => d.findings.some(f => f.status === status));
+}
+
+function render() {
+  const tbody = document.getElementById('tableBody');
+  const data = sorted(filtered(allData));
+  document.getElementById('countLabel').textContent = `${data.length} data`;
+  document.getElementById('emptyState').style.display = data.length ? 'none' : '';
+
+  // update sort icons
+  document.querySelectorAll('thead th[data-col]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.col === sortCol);
+    const icon = th.querySelector('.sort-icon');
+    if (icon) icon.textContent = th.dataset.col === sortCol ? (sortDir === 1 ? '↑' : '↓') : '↕';
+  });
+
+  tbody.innerHTML = '';
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + item.id;
+    tr.innerHTML = `
+      <td><span class="tag">${esc(item.equipment_tag)}</span></td>
+      <td>${item.inspection_date}</td>
+      <td>${esc(item.equipment_type ?? '—')}</td>
+      <td>${esc(item.operating_status ?? '—')}</td>
+      <td>${statusSummary(item.findings)}</td>
+      <td><div class="narrative-cell" title="${esc(item.raw_narrative)}">${esc(item.raw_narrative)}</div></td>
+      <td><button class="expand-btn" onclick="toggleDetail(${item.id})">Detail</button></td>
+      <td><button class="btn-del" onclick="askDelete(${item.id}, '${esc(item.equipment_tag)}')" title="Hapus">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    // findings sub-row
+    const fr = document.createElement('tr');
+    fr.className = 'findings-row';
+    fr.id = 'findings-' + item.id;
+    fr.style.display = 'none';
+    fr.innerHTML = `<td colspan="8"><div class="findings-inner">${buildFindingsTable(item.findings)}</div></td>`;
+    tbody.appendChild(fr);
+  });
+}
+
+function buildFindingsTable(findings) {
+  if (!findings.length) return '<em style="color:var(--text-dim)">Tidak ada findings.</em>';
+  const rows = findings.map(f => `<tr>
+    <td>${esc(f.parameter ?? f.component ?? '—')}</td>
+    <td>${esc(f.finding ?? '—')}</td>
+    <td>${esc(f.location ?? '—')}</td>
+    <td>${f.value != null ? f.value : '—'} ${esc(f.unit ?? '')}</td>
+    <td>${f.previous_value != null ? f.previous_value : '—'}</td>
+    <td>${f.normal_value != null ? f.normal_value : '—'}</td>
+    <td><span class="pill ${f.status ?? 'none'}">${esc(f.status ?? '—')}</span></td>
+  </tr>`).join('');
+  return `<table>
+    <thead><tr>
+      <th>Parameter/Komponen</th><th>Finding</th><th>Lokasi</th>
+      <th>Nilai</th><th>Prev</th><th>Normal</th><th>Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleDetail(id) {
+  const row = document.getElementById('findings-' + id);
+  const btn = document.querySelector(`#row-${id} .expand-btn`);
+  const isOpen = row.style.display !== 'none';
+  // tutup semua dulu
+  document.querySelectorAll('.findings-row').forEach(r => r.style.display = 'none');
+  document.querySelectorAll('.expand-btn').forEach(b => b.textContent = 'Detail');
+  if (!isOpen) {
+    row.style.display = '';
+    btn.textContent = 'Tutup';
+  }
+}
+
+function askDelete(id, tag) {
+  pendingDeleteId = id;
+  document.getElementById('modalMsg').textContent = `Hapus inspeksi "${tag}" (ID ${id})? Tindakan ini tidak dapat dibatalkan.`;
+  document.getElementById('modalBackdrop').classList.add('show');
+  document.getElementById('btnConfirmDel').onclick = confirmDelete;
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('show');
+  pendingDeleteId = null;
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  closeModal();
+  try {
+    await fetch(`/api/inspections/${pendingDeleteId}`, { method: 'DELETE' });
+    await load();
+  } catch(e) {
+    alert('Gagal menghapus: ' + e.message);
+  }
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// sort on header click
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = -1; }
+    render();
+  });
+});
+
+// filter listeners
+document.getElementById('searchTag').addEventListener('input', () => {
+  clearTimeout(window._st);
+  window._st = setTimeout(load, 300);
+});
+document.getElementById('filterStatus').addEventListener('change', render);
+
+// close modal on backdrop click
+document.getElementById('modalBackdrop').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+load();
+</script>
+</body>
+</html>

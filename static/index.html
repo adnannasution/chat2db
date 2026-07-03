@@ -27,7 +27,22 @@
     color: var(--text);
     height: 100vh;
     display: flex;
+    flex-direction: column;
   }
+  .nav {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .nav-brand { font-weight: 700; color: var(--accent); font-size: 15px; text-decoration: none; }
+  .nav a { color: var(--text-dim); text-decoration: none; font-size: 14px; padding: 4px 0; border-bottom: 2px solid transparent; }
+  .nav a.active, .nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+  .content { display: flex; flex: 1; overflow: hidden; }
   .sidebar {
     width: 340px;
     background: var(--panel);
@@ -162,6 +177,13 @@
 </head>
 <body>
 
+<nav class="nav">
+  <a href="/" class="nav-brand">Chat to DB</a>
+  <a href="/" class="active">Chat</a>
+  <a href="/data">Data Inspeksi</a>
+</nav>
+
+<div class="content">
 <div class="sidebar">
   <div class="sidebar-header">
     <div>Riwayat Inspeksi</div>
@@ -188,6 +210,7 @@
     <textarea id="messageInput" placeholder="Tulis narasi inspeksi di sini..." rows="1"></textarea>
     <button id="sendBtn">Kirim</button>
   </div>
+</div>
 </div>
 
 <script>
